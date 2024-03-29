@@ -1,5 +1,4 @@
 # Makefile for src/mod/rcon.mod/
-# $Id: Makefile,v 1.9 2000/07/09 14:10:49 fabian Exp $
 
 srcdir = .
 
