@@ -68,7 +68,7 @@ static void rcon_report(int idx, int details)
   }
 }
 
-unsigned long my_get_ip(char* rcon_host)
+static unsigned long my_get_ip(char* rcon_host)
 {
   struct hostent *hp;
   IP ip;  
