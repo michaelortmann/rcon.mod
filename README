@@ -1,4 +1,4 @@
-rcon.mod version 1.0
+rcon.mod version 1.3
 
 matchbot.tcl:
   Example script for using rcon.mod.  It functions as a matchbot.
