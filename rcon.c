@@ -329,7 +329,7 @@ static int tcl_sendrcon STDVAR
   return TCL_OK;
 }
 
-static int check_tcl_rcon(char *msg)
+static void check_tcl_rcon(char *msg)
 {
   Tcl_SetVar(interp, "_rcon1", msg, 0);
   check_tcl_bind(H_rcon, msg, 0, " $_rcon1", MATCH_MASK | BIND_STACKABLE);
