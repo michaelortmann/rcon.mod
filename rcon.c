@@ -52,7 +52,6 @@ int totalexpmem=0;
 //char *rconbuffer;
 //static int rconsock;
 static int rconlistensock;
-static unsigned long rconip;
 static p_tcl_bind_list H_rcon;
 //static int rcon_listen_port = 43456;
 //const int RCON_BUFFER_SIZE = 4096;
@@ -236,14 +235,13 @@ static int tcl_challengercon STDVAR
 static int tcl_sendrcon STDVAR
 {
   struct sockaddr_in sai;
-  struct stat st;
   const char RCONSTR[] = { "ÿÿÿÿrcon" };
   struct timeval timeout;
   char *buffer = NULL;
   int front, numbytes;
   fd_set hl_sockets;
   unsigned long rconip;
-  int rconport, challenge;
+  int rconport;
   char *cmd = NULL;
   char *newbuffer = NULL;
   int cmdsize;
