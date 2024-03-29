@@ -498,9 +498,9 @@ char *rcon_start(Function * global_funcs)
     global = global_funcs;
 
     module_register(MODULE_NAME, rcon_table, 1, 3);
-    if (!module_depend(MODULE_NAME, "eggdrop", 106, 11)) {
+    if (!module_depend(MODULE_NAME, "eggdrop", 108, 4)) {
       module_undepend(MODULE_NAME);
-      return "This module requires Eggdrop 1.6.11 or later.";
+      return "This module requires Eggdrop 1.8.4 or later.";
     }
 
 //    init_rcon();
