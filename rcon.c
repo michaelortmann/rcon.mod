@@ -213,7 +213,7 @@ static int tcl_challengercon STDVAR
         }
 //  debug2("numbytes: %d | challenge reply: %s", numbytes, buffer);
 
-  strncpyz(challenge_number, buffer, sizeof(challenge_number));
+  strlcpy(challenge_number, buffer, sizeof(challenge_number));
   splitc(challenge_number_temp, challenge_number, ' ');
   splitc(challenge_number_temp, challenge_number, ' ');
   challenge_number[strlen(challenge_number)-1] = '\0';
