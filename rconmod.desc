@@ -1,0 +1,12 @@
+Provides two commands to interface with the rcon interface of a game server.
+
+rcon: Send an rcon command.
+challengercon: Receive a challenge number for rcon commands.
+
+This was written for eggdrop 1.6
+
+--
+Michael Matsumura
+michael@limit.org
+http://limit.org
+
