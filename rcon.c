@@ -9,7 +9,7 @@
  *   rcon hostname port challengenumber password command
  * returns the output of "command"
  *
- * Version 1.4
+ * Version 1.5
  */
 /*
  * Copyright (C) 2001 proton
@@ -34,16 +34,15 @@
 #define MAKING_RCON
 #include "rcon.h" 
 #include "../module.h"
+#include <errno.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <unistd.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <fcntl.h>
 #include <sys/stat.h>
-#include <unistd.h>
 
 static Function *global = NULL;
 
@@ -71,13 +70,13 @@ static void rcon_report(int idx, int details)
 static unsigned long my_get_ip(char* rcon_host)
 {
   struct hostent *hp;
-  IP ip;  
+  IP ip;
   struct in_addr *in;
-    
+
   /* could be pre-defined */
   if (rcon_host[0]) {
     if ((rcon_host[strlen(rcon_host) - 1] >= '0') && (rcon_host[strlen(rcon_host) - 1] <= '9')) {
-        return (IP) inet_addr(rcon_host);    
+        return (IP) inet_addr(rcon_host);
     }
   }  
 
@@ -88,14 +87,14 @@ static unsigned long my_get_ip(char* rcon_host)
   in = (struct in_addr *) (hp->h_addr_list[0]);
   ip = (IP) (in->s_addr);
   return ip;
-}       
+}
 /*
 int init_rcon(void)
 {
   struct  sockaddr_in sai;
 
   if ((rconsock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-    putlog(LOG_DEBUG, "*", "init_rcon socket returned < 0 %d",rconsock);
+    putlog(LOG_MISC, "*", "init_rcon socket returned < 0 %d",rconsock);
     return((rconsock = -1));
   }
   memset(&sai, 0, sizeof(sai));
@@ -117,14 +116,14 @@ static int init_rcon_sock(void)
   int rconsock;
 
   if ((rconsock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-    putlog(LOG_DEBUG, "*", "init_rcon socket returned < 0 %d",rconsock);
+    putlog(LOG_MISC, "*", "RCON error: init_rcon_sock(): socket(): %s", strerror(errno));
     return((rconsock = -1));
   }
   memset(&sai, 0, sizeof(sai));
   sai.sin_addr.s_addr = INADDR_ANY;
   sai.sin_family = AF_INET;
   if (bind(rconsock, (struct sockaddr*)&sai, sizeof(sai)) < 0) {
-    putlog(LOG_DEBUG, "*", "bind rconsock failed");
+    putlog(LOG_MISC, "*", "RCON error: init_rcon_sock(): bind(): %s", strerror(errno));
     return((rconsock = -2));
   }
   fcntl(rconsock, F_SETFL, O_NONBLOCK | fcntl(rconsock, F_GETFL));
@@ -133,10 +132,10 @@ static int init_rcon_sock(void)
 }
 
 static int init_rcon_listen() {
-  struct  sockaddr_in sai;
+  struct sockaddr_in sai;
 
   if ((rconlistensock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-    putlog(LOG_MISC, "*", "init_rcon_listen socket returned < 0 %d",rconlistensock);
+    putlog(LOG_MISC, "*", "RCON error: init_rcon_listen(): socket(): %s", strerror(errno));
     return((rconlistensock = -1));
   }
   (void) allocsock(rconlistensock, SOCK_PASS);
@@ -182,7 +181,8 @@ static int tcl_challengercon STDVAR
   sai.sin_port = htons(rconport);
 //  debug2("ip: %D | port: %d", rconip, rconport);
 
-  sendto(rconsock, CHALLENGERCON, strlen(CHALLENGERCON), 0, (struct sockaddr*)&sai, sizeof(sai));
+  if (sendto(rconsock, CHALLENGERCON, strlen(CHALLENGERCON), 0, (struct sockaddr*)&sai, sizeof(sai)) < 0)
+    putlog(LOG_MISC, "*", "RCON error: tcl_challengercon(): sendto(): %s", strerror(errno));
 
   FD_ZERO(&hl_sockets);
   FD_SET(rconsock,&hl_sockets);
@@ -191,7 +191,7 @@ static int tcl_challengercon STDVAR
 
   front = select(FD_SETSIZE,&hl_sockets,NULL,NULL,&timeout);
   if (front < 1) {
-     putlog(LOG_MISC, "*", "rconerror: Server not responding (timeout) %d", front);
+     putlog(LOG_MISC, "*", "RCON error: Server not responding (timeout) %d", front);
      Tcl_AppendResult(irp, "-1", NULL);
      return TCL_OK;
   }
@@ -202,7 +202,7 @@ static int tcl_challengercon STDVAR
 
         numbytes = recv(rconsock, (char *)buffer, RCON_BUFFER_SIZE-1,0);
         if (numbytes == -1) {
-                putlog(LOG_MISC, "*", "rconerror: Server not responding");
+                putlog(LOG_MISC, "*", "RCON error: Server not responding");
 	        Tcl_AppendResult(irp, "-2", NULL);
 		if (buffer) {
 			totalexpmem -= RCON_BUFFER_SIZE;
@@ -264,7 +264,8 @@ static int tcl_sendrcon STDVAR
   sai.sin_family = AF_INET;
   sai.sin_addr.s_addr = rconip;
   sai.sin_port = htons(rconport);
-  sendto(rconsock, cmd, strlen(cmd), 0, (struct sockaddr*)&sai, sizeof(sai));
+  if (sendto(rconsock, cmd, strlen(cmd), 0, (struct sockaddr*)&sai, sizeof(sai)) < 0)
+    putlog(LOG_MISC, "*", "RCON error: tcl_sendrcon(): sendto(): %s", strerror(errno));
   if (cmd) {
     totalexpmem -= cmdsize;
     nfree(cmd);
@@ -278,7 +279,7 @@ static int tcl_sendrcon STDVAR
              
   front = select(FD_SETSIZE,&hl_sockets,NULL,NULL,&timeout);
   if (front < 1) {
-     putlog(LOG_MISC, "*", "rconerror: Server not responding");
+     putlog(LOG_MISC, "*", "RCON error: Server not responding");
      Tcl_AppendResult(irp, "-1", NULL);
      return TCL_OK;
   }
@@ -293,7 +294,7 @@ static int tcl_sendrcon STDVAR
 //  numbytes = recv(rconsock, rconbuffer, RCON_BUFFER_SIZE-1,0);
 
   if (numbytes == -1) {
-      putlog(LOG_MISC, "*", "rconerror: Server not responding");
+      putlog(LOG_MISC, "*", "RCON error: Server not responding");
       Tcl_AppendResult(irp, "-2", NULL);
       if (buffer) {
         totalexpmem -= RCON_BUFFER_SIZE;
@@ -338,7 +339,7 @@ static void check_tcl_rcon(char *msg)
 
 static void eof_rcon_socket(int idx)
 { 
-  putlog(LOG_MISC, "*", "RCON Error: socket closed.");
+  putlog(LOG_MISC, "*", "RCON error: socket closed.");
   killsock(dcc[idx].sock);
   /* Try to reopen socket */
   if (init_rcon_listen()) {
@@ -400,7 +401,7 @@ static struct dcc_table DCC_RCON =
 static int rcon_1char STDVAR
 {
   Function F = (Function) cd;
- 
+
   BADARGS(2, 2, " msg");
   CHECKVALIDITY(rcon_1char);
   F(argv[1]);
@@ -433,8 +434,8 @@ static void rcon_rehash() {
   }
 
     idx = new_dcc(&DCC_RCON, 0);
-//    if (idx < 0)
-//      return "NO MORE DCC CONNECTIONS -- Can't create RCON socket.";
+    if (idx < 0)
+      putlog(LOG_MISC, "*", "RCON error: could not get new dcc.");
 
     if (!init_rcon_listen()) {
       lostdcc(idx);
@@ -497,7 +498,7 @@ char *rcon_start(Function * global_funcs)
   if (global_funcs) {
     global = global_funcs;
 
-    module_register(MODULE_NAME, rcon_table, 1, 4);
+    module_register(MODULE_NAME, rcon_table, 1, 5);
     if (!module_depend(MODULE_NAME, "eggdrop", 108, 4)) {
       module_undepend(MODULE_NAME);
       return "This module requires Eggdrop 1.8.4 or later.";
@@ -526,7 +527,7 @@ char *rcon_start(Function * global_funcs)
  
     strcpy(dcc[idx].nick, "(rcon)");
 
-  }  
+  }
   return NULL;
 }
 
