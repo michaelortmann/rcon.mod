@@ -290,7 +290,6 @@ static int tcl_sendrcon STDVAR
   numbytes = recv(rconsock, buffer, RCON_BUFFER_SIZE-1,0);
 
 //  egg_bzero(rconbuffer, RCON_BUFFER_SIZE);
-//  Context;
 //  numbytes = recv(rconsock, rconbuffer, RCON_BUFFER_SIZE-1,0);
 
   if (numbytes == -1) {
@@ -304,7 +303,6 @@ static int tcl_sendrcon STDVAR
 
       return TCL_OK;
   }
-//  ContextNote(rconbuffer);
 
   if (numbytes > 4) {  // strip off ÿÿÿÿl shit
     newbuffer = buffer + 5;
