@@ -181,8 +181,14 @@ proc serverid {name} {
 }
 
 proc getrconlog {} {
-    global rhost rport challenge my-ip rcon-listen-port rconpass
-    set response [myrcon "logaddress ${my-ip} ${rcon-listen-port}"]
+    global my-ip rcon-listen-port
+    set response [myrcon "logaddress_add ${my-ip}:${rcon-listen-port}"]
+    if {[regexp -nocase {bad|error|failed|invalid} $response]} {
+        set response [myrcon "logaddress_add ${my-ip} ${rcon-listen-port}"]
+        if {[regexp -nocase {bad|error|failed|invalid} $response]} {
+            set response [myrcon "logaddress ${my-ip} ${rcon-listen-port}"]
+        }
+    }
 }
 
 proc putrconchan {msg} {
