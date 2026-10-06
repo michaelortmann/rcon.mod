@@ -9,7 +9,7 @@
  *   rcon hostname port challengenumber password command
  * returns the output of "command"
  *
- * Version 1.5
+ * Version 1.6
  */
 /*
  * Copyright (C) 2001 proton
@@ -496,7 +496,7 @@ char *rcon_start(Function * global_funcs)
   if (global_funcs) {
     global = global_funcs;
 
-    module_register(MODULE_NAME, rcon_table, 1, 5);
+    module_register(MODULE_NAME, rcon_table, 1, 6);
     if (!module_depend(MODULE_NAME, "eggdrop", 108, 4)) {
       module_undepend(MODULE_NAME);
       return "This module requires Eggdrop 1.8.4 or later.";
