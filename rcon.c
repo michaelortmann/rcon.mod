@@ -198,7 +198,7 @@ static int tcl_challengercon STDVAR
 
         buffer = (char *) nmalloc(RCON_BUFFER_SIZE);
 	totalexpmem += RCON_BUFFER_SIZE;
-        egg_bzero(buffer, RCON_BUFFER_SIZE);
+        memset(buffer, 0, RCON_BUFFER_SIZE);
 
         numbytes = recv(rconsock, (char *)buffer, RCON_BUFFER_SIZE-1,0);
         if (numbytes == -1) {
@@ -255,7 +255,7 @@ static int tcl_sendrcon STDVAR
 
   cmd = (char *) nmalloc(cmdsize);
   totalexpmem += cmdsize;
-  egg_bzero(cmd, cmdsize);  
+  memset(cmd, 0, cmdsize);  
 
   sprintf(cmd, "%s %s \"%s\" %s", RCONSTR, argv[3], argv[4], argv[5]);
 
@@ -286,10 +286,10 @@ static int tcl_sendrcon STDVAR
 
   buffer = (char *) nmalloc(RCON_BUFFER_SIZE);
   totalexpmem += RCON_BUFFER_SIZE;
-  egg_bzero(buffer, RCON_BUFFER_SIZE);
+  memset(buffer, 0, RCON_BUFFER_SIZE);
   numbytes = recv(rconsock, buffer, RCON_BUFFER_SIZE-1,0);
 
-//  egg_bzero(rconbuffer, RCON_BUFFER_SIZE);
+//  memset(rconbuffer, 0, RCON_BUFFER_SIZE);
 //  numbytes = recv(rconsock, rconbuffer, RCON_BUFFER_SIZE-1,0);
 
   if (numbytes == -1) {
