@@ -197,19 +197,19 @@ static int tcl_challengercon STDVAR
   }
 
         buffer = (char *) nmalloc(RCON_BUFFER_SIZE);
-	totalexpmem += RCON_BUFFER_SIZE;
+        totalexpmem += RCON_BUFFER_SIZE;
         memset(buffer, 0, RCON_BUFFER_SIZE);
 
         numbytes = recv(rconsock, (char *)buffer, RCON_BUFFER_SIZE-1,0);
         if (numbytes == -1) {
-                putlog(LOG_MISC, "*", "RCON error: Server not responding");
-	        Tcl_AppendResult(irp, "-2", NULL);
-		if (buffer) {
-			totalexpmem -= RCON_BUFFER_SIZE;
-		        nfree(buffer);
-			buffer = NULL;
-		}
-                return TCL_OK;
+          putlog(LOG_MISC, "*", "RCON error: Server not responding");
+          Tcl_AppendResult(irp, "-2", NULL);
+          if (buffer) {
+            totalexpmem -= RCON_BUFFER_SIZE;
+            nfree(buffer);
+            buffer = NULL;
+          }
+          return TCL_OK;
         }
 //  debug2("numbytes: %d | challenge reply: %s", numbytes, buffer);
 
