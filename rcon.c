@@ -32,7 +32,7 @@
 
 #define MODULE_NAME "rcon"
 #define MAKING_RCON
-#include "rcon.h" 
+#include "rcon.h"
 #include "../module.h"
 #include <errno.h>
 #include <netdb.h>
@@ -78,7 +78,7 @@ static unsigned long my_get_ip(char* rcon_host)
     if ((rcon_host[strlen(rcon_host) - 1] >= '0') && (rcon_host[strlen(rcon_host) - 1] <= '9')) {
         return (IP) inet_addr(rcon_host);
     }
-  }  
+  }
 
   hp = gethostbyname(rcon_host);
   if (hp == NULL) {
@@ -255,7 +255,7 @@ static int tcl_sendrcon STDVAR
 
   cmd = (char *) nmalloc(cmdsize);
   totalexpmem += cmdsize;
-  memset(cmd, 0, cmdsize);  
+  memset(cmd, 0, cmdsize);
 
   sprintf(cmd, "%s %s \"%s\" %s", RCONSTR, argv[3], argv[4], argv[5]);
 
@@ -276,7 +276,7 @@ static int tcl_sendrcon STDVAR
   FD_SET(rconsock,&hl_sockets);
   timeout.tv_sec = 6;
   timeout.tv_usec = 0;
-             
+
   front = select(FD_SETSIZE,&hl_sockets,NULL,NULL,&timeout);
   if (front < 1) {
      putlog(LOG_MISC, "*", "RCON error: Server not responding");
@@ -336,7 +336,7 @@ static void check_tcl_rcon(char *msg)
 
 
 static void eof_rcon_socket(int idx)
-{ 
+{
   putlog(LOG_MISC, "*", "RCON error: socket closed.");
   killsock(dcc[idx].sock);
   /* Try to reopen socket */
@@ -346,7 +346,7 @@ static void eof_rcon_socket(int idx)
     dcc[idx].timeval = now;
   } else
     lostdcc(idx);
-} 
+}
 
 
 static void rcon_socket(int idx, char *buf, int len)
@@ -363,7 +363,7 @@ static void rcon_socket(int idx, char *buf, int len)
 
   bufferptr = buffer + 4; // remove 4 "-1 bits"
 
-//  buffer = buffer + 4; 
+//  buffer = buffer + 4;
 
 //  putlog(LOG_MISC, "*", buffer);
   check_tcl_rcon(bufferptr);
@@ -407,10 +407,10 @@ static int rcon_1char STDVAR
 }
 
 static tcl_cmds mytcls[] =
-{ 
+{
   {"challengercon",     tcl_challengercon},
   {"rcon",              tcl_sendrcon},
-  {NULL,                NULL} 
+  {NULL,                NULL}
 };
 
 static tcl_ints myints[] =
@@ -442,7 +442,7 @@ static void rcon_rehash() {
 
     dcc[idx].sock = rconlistensock;
     dcc[idx].timeval = now;
- 
+
     strcpy(dcc[idx].nick, "(rcon)");
     }
 }
@@ -522,11 +522,10 @@ char *rcon_start(Function * global_funcs)
 
     dcc[idx].sock = rconlistensock;
     dcc[idx].timeval = now;
- 
+
     strcpy(dcc[idx].nick, "(rcon)");
 
   }
   return NULL;
 }
-
 
